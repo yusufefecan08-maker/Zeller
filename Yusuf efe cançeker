@@ -1,0 +1,76 @@
+<div id="zeller-gun-hesaplama-widget" style="max-width:480px;margin:20px auto;font-family:Arial, sans-serif;background:#f7f9fc;border:1px solid #dde3ec;border-radius:12px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+  <h3 style="margin:0 0 16px 0;color:#1f2a44;font-size:20px;text-align:center;">📅 Zeller Denklemi ile Gün Hesaplama</h3>
+
+  <div style="margin-bottom:12px;">
+    <label for="zeller-tarih" style="display:block;margin-bottom:6px;color:#334155;font-weight:bold;">Tarih Seçin:</label>
+    <input type="date" id="zeller-tarih" style="width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;box-sizing:border-box;">
+  </div>
+
+  <button id="zeller-hesapla-btn" style="width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;font-weight:bold;">
+    Hesapla
+  </button>
+
+  <div id="zeller-sonuc" style="margin-top:18px;padding:14px;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;text-align:center;font-size:17px;color:#0f172a;display:none;">
+  </div>
+
+  <div style="margin-top:14px;font-size:12px;color:#64748b;text-align:center;">
+    Bu araç, <strong>Zeller Denklemi (Zeller's Congruence)</strong> kullanarak girdiğiniz tarihin haftanın hangi gününe denk geldiğini hesaplar. Gregoryen takvim için geçerlidir.
+  </div>
+</div>
+
+<script>
+(function() {
+  function zellerHesapla(gun, ay, yil) {
+    // Zeller denkleminde Ocak ve Şubat, bir önceki yılın 13. ve 14. ayı sayılır
+    var q = gun;
+    var m = ay;
+    var y = yil;
+
+    if (m < 3) {
+      m += 12;
+      y -= 1;
+    }
+
+    var K = y % 100;
+    var J = Math.floor(y / 100);
+
+    var h = (q + Math.floor((13 * (m + 1)) / 5) + K + Math.floor(K / 4) + Math.floor(J / 4) - 2 * J) % 7;
+
+    // Negatif sonuçları düzelt (bazı tarayıcılarda mod negatif çıkabilir)
+    h = ((h % 7) + 7) % 7;
+
+    var gunler = ["Cumartesi", "Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"];
+    return gunler[h];
+  }
+
+  function ayAdi(ay) {
+    var aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    return aylar[ay - 1];
+  }
+
+  document.getElementById("zeller-hesapla-btn").addEventListener("click", function() {
+    var input = document.getElementById("zeller-tarih").value;
+    var sonucKutu = document.getElementById("zeller-sonuc");
+
+    if (!input) {
+      sonucKutu.style.display = "block";
+      sonucKutu.innerHTML = "⚠️ Lütfen bir tarih seçin.";
+      sonucKutu.style.color = "#dc2626";
+      return;
+    }
+
+    var parcalar = input.split("-");
+    var yil = parseInt(parcalar[0], 10);
+    var ay = parseInt(parcalar[1], 10);
+    var gun = parseInt(parcalar[2], 10);
+
+    var gunAdi = zellerHesapla(gun, ay, yil);
+
+    sonucKutu.style.display = "block";
+    sonucKutu.style.color = "#0f172a";
+    sonucKutu.innerHTML =
+      "<strong>" + gun + " " + ayAdi(ay) + " " + yil + "</strong> tarihi<br>" +
+      "haftanın <span style='color:#2563eb;font-weight:bold;'>" + gunAdi + "</span> gününe denk geliyor.";
+  });
+})();
+</script>
